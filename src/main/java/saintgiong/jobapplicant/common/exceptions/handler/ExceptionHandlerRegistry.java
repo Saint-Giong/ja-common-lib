@@ -13,6 +13,9 @@ public class ExceptionHandlerRegistry {
     private final Map<Class<? extends Throwable>, Function<Throwable, ExceptionResponse>> handlers = new ConcurrentHashMap<>();
 
     public <T extends Throwable> void registerHandler(Class<T> exceptionClass, Function<T, ExceptionResponse> handler) {
+        if (!Throwable.class.isAssignableFrom(exceptionClass)) {
+            throw new IllegalArgumentException("Registered class must be a Throwable");
+        }
         handlers.put(exceptionClass, (Function<Throwable, ExceptionResponse>) handler);
     }
 
