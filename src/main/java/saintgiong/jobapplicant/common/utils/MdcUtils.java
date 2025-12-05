@@ -1,12 +1,14 @@
 package saintgiong.jobapplicant.common.utils;
 
-import lombok.experimental.UtilityClass;
 import org.slf4j.MDC;
 import java.util.Map;
 import java.util.UUID;
 
-@UtilityClass
-public class MdcUtils {
+public final class MdcUtils {
+
+    private MdcUtils() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     public static final String CORRELATION_ID = "correlationId";
     public static final String USER_ID = "userId";

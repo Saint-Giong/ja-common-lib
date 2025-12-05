@@ -1,13 +1,22 @@
 package saintgiong.jobapplicant.common.exceptions;
 
-import lombok.RequiredArgsConstructor;
 import saintgiong.jobapplicant.common.utils.LoggingUtils;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import saintgiong.jobapplicant.common.models.response.ExceptionResponse;
+import java.time.LocalDateTime;
+import java.util.function.Function;
 
 @ControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private final ExceptionHandlerRegistry registry;
+
+    public GlobalExceptionHandler(ExceptionHandlerRegistry registry) {
+        this.registry = registry;
+    }
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ExceptionResponse> handleBaseException(BaseException ex) {
