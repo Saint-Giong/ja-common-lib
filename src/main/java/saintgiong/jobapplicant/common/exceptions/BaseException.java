@@ -1,8 +1,5 @@
 package saintgiong.jobapplicant.common.exceptions;
 
-import lombok.Getter;
-
-@Getter
 public class BaseException extends RuntimeException {
 
     private final String code;
@@ -18,5 +15,14 @@ public class BaseException extends RuntimeException {
         super(message, cause);
         this.code = code;
         this.message = message;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }
