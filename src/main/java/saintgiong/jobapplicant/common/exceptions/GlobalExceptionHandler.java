@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import saintgiong.jobapplicant.common.models.response.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.util.function.Function;
+import saintgiong.jobapplicant.common.exceptions.handler.ExceptionHandlerRegistry;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
