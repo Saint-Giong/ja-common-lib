@@ -36,5 +36,3 @@ jobs:
           mvn clean deploy -B \
             -DskipTests=true \
             -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
-        env:
-          GPG_TTY: $(tty)
