@@ -23,18 +23,18 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           server-id: ossrh
+          server-username: ${{ secrets.OSSRH_USERNAME }}
+          server-password: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Import GPG Key
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" > private.key
-          gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import private.key
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --yes --import
+          gpg --list-secret-keys --keyid-format LONG
 
       - name: Deploy to Maven Central
         run: |
-          # The mvn command relies on the GPG key being imported in the previous step
           mvn clean deploy -B \
             -DskipTests=true \
             -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          GPG_TTY: $(tty)
