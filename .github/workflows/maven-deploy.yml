@@ -29,6 +29,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Update version in pom.xml
+        run: |
+          # Use the versions:set goal to reliably update the version
+          mvn versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+          echo "Updated pom.xml version to ${{ steps.version.outputs.version }}"
+
       - name: Publish package
         run: mvn --batch-mode deploy
         env:
