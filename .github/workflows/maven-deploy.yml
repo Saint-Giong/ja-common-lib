@@ -1,38 +1,55 @@
-name: Maven Central Deployment
+name: Maven Deploy to GitHub Packages
 
 on:
-  # Allows manual runs from the Actions tab for testing
-  workflow_dispatch:
-
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9]+)?'
+      - 'v[0-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9-]+)?'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Java and Maven Settings
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: ossrh
-          server-username: ${{ secrets.OSSRH_USERNAME }}
-          server-password: ${{ secrets.OSSRH_PASSWORD }}
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Import GPG Key
+      - name: Update version in pom.xml
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --yes --import
-          gpg --list-secret-keys --keyid-format LONG
+          # Update only the project version (the one after artifactId=common)
+          VERSION="${{ steps.version.outputs.version }}"
+          # Use awk to find and replace the version after artifactId=common
+          awk -v version="$VERSION" '
+            /<artifactId>common<\/artifactId>/ { found=1; print; next }
+            found && /<version>/ { 
+              sub(/<version>.*<\/version>/, "<version>" version "</version>")
+              found=0
+            }
+            { print }
+          ' pom.xml > pom.xml.tmp && mv pom.xml.tmp pom.xml
+          echo "Updated pom.xml version to $VERSION"
+          grep -A 1 "<artifactId>common</artifactId>" pom.xml
 
-      - name: Deploy to Maven Central
+      - name: Deploy to GitHub Packages
         run: |
-          mvn clean deploy -B \
-            -DskipTests=true \
-            -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+          mvn clean deploy -B -DskipTests=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
