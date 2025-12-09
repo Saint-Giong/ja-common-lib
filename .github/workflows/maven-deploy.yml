@@ -1,38 +1,41 @@
-name: Maven Central Deployment
+name: Maven Deploy to GitHub Packages
 
 on:
-  # Allows manual runs from the Actions tab for testing
   workflow_dispatch:
-
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9]+)?'
+      - 'v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      - name: Set up Java and Maven Settings
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: ossrh
-          server-username: ${{ secrets.OSSRH_USERNAME }}
-          server-password: ${{ secrets.OSSRH_PASSWORD }}
 
-      - name: Import GPG Key
+      - name: Update version in pom.xml
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --yes --import
-          gpg --list-secret-keys --keyid-format LONG
+          # Use the versions:set goal to reliably update the version
+          mvn versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+          echo "Updated pom.xml version to ${{ steps.version.outputs.version }}"
 
-      - name: Deploy to Maven Central
-        run: |
-          mvn clean deploy -B \
-            -DskipTests=true \
-            -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
