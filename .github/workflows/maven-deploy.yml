@@ -3,7 +3,7 @@ name: Maven Deploy to GitHub Packages
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9-]+)?'
+      - 'v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?'
 
 jobs:
   deploy:
@@ -21,7 +21,6 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -34,19 +33,9 @@ jobs:
 
       - name: Update version in pom.xml
         run: |
-          # Update only the project version (the one after artifactId=common)
-          VERSION="${{ steps.version.outputs.version }}"
-          # Use awk to find and replace the version after artifactId=common
-          awk -v version="$VERSION" '
-            /<artifactId>common<\/artifactId>/ { found=1; print; next }
-            found && /<version>/ { 
-              sub(/<version>.*<\/version>/, "<version>" version "</version>")
-              found=0
-            }
-            { print }
-          ' pom.xml > pom.xml.tmp && mv pom.xml.tmp pom.xml
-          echo "Updated pom.xml version to $VERSION"
-          grep -A 1 "<artifactId>common</artifactId>" pom.xml
+          # Use the versions:set goal to reliably update the version
+          mvn versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+          echo "Updated pom.xml version to ${{ steps.version.outputs.version }}"
 
       - name: Deploy to GitHub Packages
         run: |
