@@ -3,24 +3,24 @@ package saintgiong.jobapplicant.common.models.response;
 import java.time.LocalDateTime;
 
 public class ExceptionResponse {
-    private String code;
+    private int code;
     private String message;
     private LocalDateTime timestamp;
 
     public ExceptionResponse() {
     }
 
-    public ExceptionResponse(String code, String message, LocalDateTime timestamp) {
+    public ExceptionResponse(int code, String message, LocalDateTime timestamp) {
         this.code = code;
         this.message = message;
         this.timestamp = timestamp;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
@@ -45,11 +45,11 @@ public class ExceptionResponse {
     }
 
     public static class Builder {
-        private String code;
+        private int code;
         private String message;
         private LocalDateTime timestamp;
 
-        public Builder code(String code) {
+        public Builder code(int code) {
             this.code = code;
             return this;
         }

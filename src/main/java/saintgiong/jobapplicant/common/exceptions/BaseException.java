@@ -2,22 +2,22 @@ package saintgiong.jobapplicant.common.exceptions;
 
 public class BaseException extends RuntimeException {
 
-    private final String code;
+    private final int code;
     private final String message;
 
-    public BaseException(String code, String message) {
+    public BaseException(int code, String message) {
         super(message);
         this.code = code;
         this.message = message;
     }
 
-    public BaseException(String code, String message, Throwable cause) {
+    public BaseException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
         this.message = message;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
