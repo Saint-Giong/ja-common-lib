@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
 
         ExceptionResponse response = ExceptionResponse.builder()
-                .code("INTERNAL_SERVER_ERROR")
+                .code(ErrorCode.INTERNAL_SERVER_ERROR)
                 .message("An unexpected error occurred")
                 .timestamp(LocalDateTime.now())
                 .build();
