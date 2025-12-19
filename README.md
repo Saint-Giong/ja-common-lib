@@ -16,15 +16,30 @@ This library provides shared utilities, models, and exception handling for the J
 
 ## Setup
 
-Simply add the dependency to your project. The library uses Spring Boot Auto-Configuration, so no manual `@ComponentScan` is required.
+Add the following repository configuration to your `pom.xml`:
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/saint-giong/ja-common-lib</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+Add the library dependency to your project:
 
 ```xml
 <dependency>
-    <groupId>saintgiong.jobapplicant</groupId>
+    <groupId>io.github.saint-giong</groupId>
     <artifactId>common</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.4-beta2</version>
 </dependency>
 ```
+
+**Note for Local Development**: If you're building locally (not in Docker), you'll need to configure GitHub authentication in `~/.m2/settings.xml`. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages) for details. Docker builds handle authentication automatically via build secrets.
 
 ## Usage
 
