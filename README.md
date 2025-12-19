@@ -14,10 +14,105 @@ This library provides shared utilities, models, and exception handling for the J
     - `BaseException`: Base class for custom application exceptions.
 - **Auto-Configuration**: Automatically configures components when imported into a Spring Boot application.
 
-## Setup
+## 🚀 Quick Setup for Team Members
 
-Add the following repository configuration to your `pom.xml`:
+### Option 1: Automated Setup (Recommended)
+
+Run the setup script to automatically configure Maven:
+
+```bash
+cd ja-common-lib
+chmod +x setup-maven.sh
+./setup-maven.sh
+```
+
+The script will:
+1. Prompt for your GitHub username
+2. Prompt for your GitHub Personal Access Token (PAT)
+3. Create/update `~/.m2/settings.xml` with proper authentication
+4. Backup existing settings if present
+
+### Option 2: Manual Setup
+
+#### Step 1: Generate GitHub Personal Access Token
+
+1. Go to https://github.com/settings/tokens
+2. Click **"Generate new token (classic)"**
+3. Give it a name: `Maven Package Access`
+4. Select scope: **`read:packages`** (required)
+5. Click **"Generate token"** and **copy it immediately**
+
+#### Step 2: Configure Maven Settings
+
+Create or edit `~/.m2/settings.xml`:
+
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_PAT_TOKEN</password>
+    </server>
+  </servers>
+
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+
+  <profiles>
+    <profile>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/saint-giong/ja-common-lib</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+</settings>
+```
+
+Replace `YOUR_GITHUB_USERNAME` and `YOUR_GITHUB_PAT_TOKEN` with your credentials.
+
+#### Step 3: Verify Setup
+
+```bash
+# Clear any cached authentication failures
+rm -rf ~/.m2/repository/io/github/saint-giong/common/
+
+# Test by building a microservice
+cd ../ja-authentication-service
+mvn clean install -U -DskipTests
+```
+
+### Add to Microservices
+
+Each microservice's `pom.xml` should include:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.github.saint-giong</groupId>
+        <artifactId>common</artifactId>
+        <version>0.0.9</version>
+    </dependency>
+</dependencies>
+
 <repositories>
     <repository>
         <id>github</id>
@@ -29,17 +124,21 @@ Add the following repository configuration to your `pom.xml`:
 </repositories>
 ```
 
-Add the library dependency to your project:
+## ⚠️ Troubleshooting
 
-```xml
-<dependency>
-    <groupId>io.github.saint-giong</groupId>
-    <artifactId>common</artifactId>
-    <version>0.0.4-beta2</version>
-</dependency>
-```
+### Error: `401 Unauthorized`
 
-**Note for Local Development**: If you're building locally (not in Docker), you'll need to configure GitHub authentication in `~/.m2/settings.xml`. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#authenticating-to-github-packages) for details. Docker builds handle authentication automatically via build secrets.
+**Solutions**:
+1. Check token expiration - generate a new PAT
+2. Verify token has `read:packages` scope
+3. Clear cached failures: `rm -rf ~/.m2/repository/io/github/saint-giong/common/`
+4. Force update: `mvn clean install -U -DskipTests`
+
+### Error: `Non-parseable settings`
+
+**Solutions**:
+1. Verify XML syntax: `xmllint --noout ~/.m2/settings.xml`
+2. Re-run setup script: `./setup-maven.sh`
 
 ## Usage
 

@@ -11,7 +11,7 @@
 
 	<groupId>io.github.saint-giong</groupId>
 	<artifactId>common</artifactId>
-	<version>0.0.4-beta2</version>
+	<version>0.0.9-beta</version>
 	<packaging>jar</packaging>
 	<name>ja-common-lib</name>
 	<description>A common utility library for the Job Applicant project.</description>
