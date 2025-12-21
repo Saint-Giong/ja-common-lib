@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "MediaUploadRequestEvent",
+  "namespace": "saintgiong.jobapplicant.common.models.kafka",
+  "fields": [
+    {
+      "name": "requestId",
+      "type": "string"
+    },
+    {
+      "name": "applicantId",
+      "type": "string"
+    },
+    {
+      "name": "mediaType",
+      "type": "string"
+    },
+    {
+      "name": "contentType",
+      "type": "string"
+    },
+    {
+      "name": "fileSize",
+      "type": "long"
+    }
+  ]
+}
