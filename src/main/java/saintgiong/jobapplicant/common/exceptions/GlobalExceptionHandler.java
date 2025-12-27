@@ -1,6 +1,7 @@
 package saintgiong.jobapplicant.common.exceptions;
 
 import saintgiong.jobapplicant.common.utils.LoggingUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import saintgiong.jobapplicant.common.models.response.ExceptionResponse;
 import java.time.LocalDateTime;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import saintgiong.jobapplicant.common.exceptions.handler.ExceptionHandlerRegistry;
 
 @ControllerAdvice
@@ -33,6 +35,27 @@ public class GlobalExceptionHandler {
             httpStatus = HttpStatus.BAD_REQUEST;
         }
         return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        if (message.isEmpty()) {
+            message = "Validation failed";
+        }
+
+        LoggingUtils.logError(GlobalExceptionHandler.class, "Validation failed: " + message, ex);
+
+        ExceptionResponse response = ExceptionResponse.builder()
+                .code(ErrorCode.BAD_REQUEST)
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
