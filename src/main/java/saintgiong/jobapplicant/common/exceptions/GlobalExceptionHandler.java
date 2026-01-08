@@ -26,11 +26,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ExceptionResponse> handleBaseException(BaseException ex) {
-        LoggingUtils.logError(
-                GlobalExceptionHandler.class,
-                "BaseException occurred: " + ex.getMessage(),
-                ex
-        );
+        LoggingUtils.logError(GlobalExceptionHandler.class, "BaseException occurred: " + ex.getMessage(), ex);
 
         ExceptionResponse response = ExceptionResponse.builder()
                 .code(ex.getCode())
@@ -39,6 +35,7 @@ public class GlobalExceptionHandler {
                 .build();
 
         HttpStatus httpStatus = HttpStatus.resolve(ex.getCode());
+        
         if (httpStatus == null) {
             httpStatus = HttpStatus.BAD_REQUEST;
         }
@@ -60,11 +57,7 @@ public class GlobalExceptionHandler {
             message = "Validation failed";
         }
 
-        LoggingUtils.logError(
-                GlobalExceptionHandler.class,
-                "Validation failed: " + message,
-                ex
-        );
+        LoggingUtils.logError(GlobalExceptionHandler.class, "Validation failed: " + message, ex);
 
         ExceptionResponse response = ExceptionResponse.builder()
                 .code(ErrorCode.BAD_REQUEST)
@@ -79,11 +72,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleNoResourceFoundException(
             NoResourceFoundException ex
     ) {
-        LoggingUtils.logError(
-                GlobalExceptionHandler.class,
-                "No resource found: " + ex.getMessage(),
-                ex
-        );
+        LoggingUtils.logError(GlobalExceptionHandler.class, "No resource found: " + ex.getMessage(), ex);
 
         ExceptionResponse response = ExceptionResponse.builder()
                 .code(HttpStatus.NOT_FOUND.value())
@@ -96,15 +85,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
-        LoggingUtils.logError(
-                GlobalExceptionHandler.class,
-                "Exception occurred: " + ex.getMessage(),
-                ex
-        );
+        LoggingUtils.logError( GlobalExceptionHandler.class, "Exception occurred: " + ex.getMessage(), ex);
 
         if (registry.hasHandler(ex.getClass())) {
-            Function<Throwable, ExceptionResponse> handler =
-                    registry.getHandler(ex.getClass());
+            Function<Throwable, ExceptionResponse> handler = registry.getHandler(ex.getClass());
 
             ExceptionResponse response = handler.apply(ex);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
