@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
-        LoggingUtils.logError( GlobalExceptionHandler.class, "Exception occurred: " + ex.getMessage(), ex);
+        LoggingUtils.logError(GlobalExceptionHandler.class, "Exception occurred: " + ex.getMessage(), ex);
 
         if (registry.hasHandler(ex.getClass())) {
             Function<Throwable, ExceptionResponse> handler = registry.getHandler(ex.getClass());
